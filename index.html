@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>広告運用レポート｜EC・定期購入ダッシュボード</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --page:#f5f6f8; --surf:#ffffff; --surf2:#f8f9fb; --surf3:#f1f3f6;
+  --bd:#e5e7eb; --bd2:#d1d5db;
+  --t1:#111827; --t2:#374151; --t3:#6b7280; --t4:#9ca3af;
+  --ind:#4f46e5; --ind-l:#eef2ff; --ind-m:#818cf8;
+  --grn:#059669; --grn-l:#ecfdf5; --grn-m:#34d399;
+  --amb:#d97706; --amb-l:#fffbeb; --amb-m:#fbbf24;
+  --red:#dc2626; --red-l:#fef2f2; --red-m:#f87171;
+  --sky:#0284c7; --sky-l:#f0f9ff;
+  --rose:#e11d48; --rose-l:#fff1f2;
+  --font:'Inter',-apple-system,sans-serif; --mono:'JetBrains Mono',monospace;
+  --r:8px; --rlg:12px; --rxl:16px;
+}
+body{font-family:var(--font);background:var(--page);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.6;}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--page);display:flex;align-items:center;justify-content:center;z-index:9000;}
+.login-box{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rxl);padding:40px 36px;width:min(400px,92vw);box-shadow:0 4px 24px rgba(0,0,0,.06);}
+.login-logo{display:flex;align-items:center;gap:8px;margin-bottom:24px;}
+.login-logo-badge{background:var(--rose);color:#fff;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 9px;border-radius:6px;}
+.login-logo-name{font-size:13px;font-weight:600;color:var(--t2);}
+.login-title{font-size:22px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.login-sub{font-size:13px;color:var(--t3);margin-bottom:28px;}
+.l-label{font-size:12px;font-weight:500;color:var(--t2);margin-bottom:5px;display:block;}
+.l-input{width:100%;background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);color:var(--t1);font-family:var(--font);font-size:14px;padding:10px 12px;outline:none;margin-bottom:14px;transition:border-color .2s,box-shadow .2s;}
+.l-input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(225,29,72,.08);}
+.l-btn{width:100%;background:var(--rose);color:#fff;border:none;border-radius:var(--r);padding:11px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:4px;}
+.l-btn:hover{opacity:.88;}
+.l-err{font-size:12px;color:var(--red);margin-top:8px;display:none;background:var(--red-l);border:1px solid #fecaca;border-radius:6px;padding:8px 10px;}
+.l-demo{margin-top:22px;padding-top:20px;border-top:1px solid var(--bd);}
+.l-demo-title{font-size:10px;font-weight:600;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.l-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--bd);border-radius:var(--r);margin-bottom:6px;cursor:pointer;transition:all .2s;background:var(--surf);}
+.l-row:hover{border-color:var(--rose);background:var(--rose-l);}
+.l-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.l-name{font-size:12px;font-weight:500;color:var(--t1);}
+.l-id{font-size:10px;color:var(--t3);font-family:var(--mono);}
+
+/* TOPBAR */
+.topbar{background:var(--surf);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.topbar-l{display:flex;align-items:center;gap:14px;}
+.logo-badge{background:var(--rose);color:#fff;font-weight:700;font-size:10px;letter-spacing:.1em;padding:4px 9px;border-radius:6px;}
+.client-name{font-size:14px;font-weight:600;color:var(--t1);}
+.campaign-name{font-size:11px;color:var(--t3);}
+.topbar-r{display:flex;align-items:center;gap:8px;}
+.live-pip{display:flex;align-items:center;gap:5px;background:var(--grn-l);border:1px solid #a7f3d0;border-radius:20px;padding:3px 9px;}
+.live-dot{width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.live-label{font-size:10px;font-weight:600;color:var(--grn);}
+.month-sel{display:flex;align-items:center;background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;}
+.mbtn{background:transparent;border:none;color:var(--t3);font-size:14px;padding:6px 10px;cursor:pointer;font-family:var(--font);transition:color .15s,background .15s;}
+.mbtn:hover{color:var(--t1);background:var(--surf3);}
+.mdisp{font-size:12px;font-family:var(--mono);color:var(--rose);padding:6px 10px;border-left:1px solid var(--bd);border-right:1px solid var(--bd);min-width:80px;text-align:center;font-weight:500;}
+.logout-btn{background:transparent;border:1px solid var(--bd);color:var(--t3);border-radius:var(--r);padding:6px 12px;font-size:12px;font-family:var(--font);cursor:pointer;transition:all .2s;font-weight:500;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-l);}
+.type-badge{background:var(--rose-l);border:1px solid #fecdd3;border-radius:5px;padding:2px 8px;font-size:10px;color:var(--rose);font-weight:600;}
+
+/* MAIN */
+.main{padding:24px;max-width:1360px;margin:0 auto;}
+.alert-bar{border-radius:var(--r);padding:10px 14px;font-size:13px;margin-bottom:20px;display:flex;align-items:center;gap:8px;border:1px solid transparent;font-weight:500;}
+.a-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.sec-title{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--t3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+/* KPI CARDS */
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.kpi-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:700px){.kpi-grid-3,.kpi-grid-2{grid-template-columns:1fr;}}
+.kpi-card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:18px 20px;position:relative;transition:box-shadow .2s;}
+.kpi-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.kpi-accent{width:28px;height:3px;border-radius:2px;margin-bottom:10px;}
+.kpi-label{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+.kpi-main{font-size:30px;font-weight:700;color:var(--t1);line-height:1;margin-bottom:5px;letter-spacing:-.02em;}
+.kpi-sub{font-size:12px;color:var(--t3);margin-bottom:8px;}
+.pace-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.p-on{background:var(--grn-l);color:var(--grn);}
+.p-fast{background:var(--amb-l);color:var(--amb);}
+.p-over{background:var(--red-l);color:var(--red);}
+.p-slow{background:var(--surf3);color:var(--t3);}
+
+/* DONUT CARD */
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:760px){.hero-grid{grid-template-columns:1fr;}}
+.card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:18px 20px;}
+.card-title{font-size:12px;font-weight:700;color:var(--t2);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;letter-spacing:.05em;}
+.pace-donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut-svg-wrap{position:relative;flex-shrink:0;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.donut-pct{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1;}
+.donut-lbl{font-size:10px;font-weight:600;color:var(--t4);margin-top:2px;letter-spacing:.04em;}
+.donut-meta{flex:1;min-width:0;}
+.donut-meta-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.donut-meta-key{font-size:11px;color:var(--t3);font-weight:500;}
+.donut-meta-val{font-size:20px;font-weight:700;color:var(--t1);font-family:var(--mono);letter-spacing:-.02em;}
+.pace-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;margin-top:6px;}
+
+/* FORECAST STRIP */
+.forecast-strip{background:var(--surf2);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-top:14px;}
+.forecast-strip-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.forecast-strip-label{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.06em;}
+.forecast-strip-val{font-size:18px;font-weight:700;font-family:var(--mono);}
+.pace-bar-row{margin-bottom:10px;}
+.pace-bar-row:last-of-type{margin-bottom:0;}
+.pace-bar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.pace-bar-key{font-size:11px;font-weight:600;color:var(--t3);}
+.pace-bar-pct{font-size:13px;font-weight:700;font-family:var(--mono);}
+.pace-bar-track{height:8px;background:var(--surf3);border-radius:4px;overflow:hidden;border:1px solid var(--bd);}
+.pace-bar-fill{height:100%;border-radius:4px;transition:width .7s ease;}
+.forecast-strip-note{font-size:11px;font-weight:500;margin-top:10px;padding-top:8px;border-top:1px solid var(--bd);}
+
+/* CHANNEL BARS */
+.ch-bar-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd);}
+.ch-bar-row:last-child{border-bottom:none;padding-bottom:0;}
+.ch-bar-name{font-size:12px;font-weight:600;color:var(--t2);width:100px;flex-shrink:0;}
+.ch-bar-track-wrap{flex:1;}
+.ch-bar-track{height:6px;background:var(--surf3);border-radius:3px;overflow:hidden;margin-bottom:4px;border:1px solid var(--bd);}
+.ch-bar-fill{height:100%;border-radius:3px;transition:width .7s ease;}
+.ch-bar-numbers{display:flex;align-items:center;justify-content:space-between;font-size:11px;}
+.ch-bar-spent{font-family:var(--mono);font-weight:600;color:var(--t1);}
+.ch-bar-budget{font-family:var(--mono);color:var(--t4);}
+.ch-bar-pct{font-size:12px;font-weight:700;font-family:var(--mono);width:42px;text-align:right;flex-shrink:0;}
+
+/* CHART SWITCHER */
+.chart-switch-card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:18px 20px;margin-bottom:22px;}
+.chart-switch-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.chart-switch-title{font-size:12px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;}
+.chart-tabs{display:flex;background:var(--surf2);border:1px solid var(--bd);border-radius:7px;padding:2px;gap:2px;}
+.chart-tab{background:transparent;border:none;border-radius:5px;padding:5px 13px;font-size:11px;font-weight:600;color:var(--t3);font-family:var(--font);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.chart-tab.active{background:var(--surf);color:var(--rose);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.chart-tab:hover:not(.active){color:var(--t2);}
+.chart-wrap{position:relative;height:200px;}
+
+/* FUNNEL CARDS */
+.funnel-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:760px){.funnel-grid-2{grid-template-columns:1fr;}}
+.fc{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:18px 20px;border-top:3px solid transparent;}
+.fc.f2{border-top-color:#d97706;}
+.fc.f3{border-top-color:#059669;}
+.fc-stage{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;}
+.fc.f2 .fc-stage{color:#d97706;}
+.fc.f3 .fc-stage{color:#059669;}
+.fc-count{font-size:28px;font-weight:700;color:var(--t1);letter-spacing:-.02em;line-height:1;margin-bottom:2px;}
+.fc-unit{font-size:13px;font-weight:500;color:var(--t3);}
+.fc-target{font-size:12px;color:var(--t3);margin-bottom:9px;}
+.fc-pct-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.fc-pct{font-size:14px;font-weight:700;font-family:var(--mono);}
+.fc.f2 .fc-pct{color:#d97706;}
+.fc.f3 .fc-pct{color:#059669;}
+.fc-pct-label{font-size:10px;color:var(--t4);font-weight:500;}
+.fc-divider{height:1px;background:var(--bd);margin:10px 0;}
+.fc-cpo-label{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.fc-cpo-val{font-size:16px;font-weight:700;font-family:var(--mono);}
+.fc.f2 .fc-cpo-val{color:#d97706;}
+.fc.f3 .fc-cpo-val{color:#059669;}
+.pr-track{height:5px;background:var(--surf3);border-radius:3px;overflow:hidden;border:1px solid var(--bd);}
+.pr-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+
+/* LTV SECTION */
+.ltv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+@media(max-width:860px){.ltv-grid{grid-template-columns:repeat(2,1fr);}}
+.ltv-card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:16px 18px;}
+.ltv-label{font-size:10px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.ltv-val{font-size:24px;font-weight:700;color:var(--t1);font-family:var(--mono);letter-spacing:-.02em;margin-bottom:3px;}
+.ltv-sub{font-size:11px;color:var(--t3);}
+.ltv-trend{font-size:11px;font-weight:600;margin-top:6px;}
+.trend-up{color:var(--grn);}
+.trend-dn{color:var(--red);}
+
+/* COMPARISON CARDS */
+.cmp-card{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:20px 22px;}
+.cmp-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.cmp-legend{display:flex;gap:14px;margin-bottom:16px;}
+.cmp-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--t3);}
+.cmp-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.cmp-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.cmp-row:last-of-type{margin-bottom:0;}
+.cmp-row-label{font-size:11px;font-weight:600;color:var(--t2);width:76px;flex-shrink:0;}
+.cmp-bar-wrap{flex:1;}
+.cmp-bar-track{height:10px;background:var(--surf3);border-radius:5px;overflow:hidden;border:1px solid var(--bd);margin-bottom:2px;}
+.cmp-bar-fill{height:100%;border-radius:5px;transition:width .7s ease;}
+.cmp-bar-sub{font-size:10px;color:var(--t4);}
+.cmp-bar-val{font-size:15px;font-weight:700;font-family:var(--mono);width:58px;text-align:right;flex-shrink:0;line-height:1;}
+.cmp-divider{height:1px;background:var(--bd);margin:16px 0;}
+.cmp-verdict{display:flex;align-items:center;justify-content:space-between;}
+.cmp-verdict-label{font-size:11px;color:var(--t3);font-weight:500;}
+.cmp-verdict-val{font-size:14px;font-weight:700;font-family:var(--mono);}
+
+/* MEETINGS */
+.notif-dot{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;margin-left:3px;}
+.tldv-banner{background:var(--sky-l);border:1px solid #bae6fd;border-radius:var(--r);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.tldv-l{display:flex;align-items:center;gap:9px;}
+.tldv-icon{width:24px;height:24px;background:var(--sky);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;}
+.tldv-text{font-size:12px;color:var(--sky);font-weight:500;}
+.tldv-btn{background:var(--sky);color:#fff;border:none;border-radius:6px;padding:5px 13px;font-size:11px;font-weight:700;font-family:var(--font);cursor:pointer;}
+.mc{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rlg);padding:16px 18px;margin-bottom:10px;}
+.mc.draft{border-color:#fde68a;background:#fffdf0;}
+.mc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;}
+.mc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.m-date{font-family:var(--mono);font-size:11px;color:var(--rose);background:var(--rose-l);border:1px solid #fecdd3;padding:3px 8px;border-radius:5px;font-weight:500;}
+.m-type{font-size:10px;font-weight:600;color:var(--t3);padding:3px 8px;background:var(--surf2);border:1px solid var(--bd);border-radius:5px;text-transform:uppercase;letter-spacing:.05em;}
+.m-status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;}
+.s-approved{background:var(--grn-l);color:var(--grn);border:1px solid #a7f3d0;}
+.m-title{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:8px;}
+.m-sec{font-size:10px;font-weight:700;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin:10px 0 5px;}
+.m-item{font-size:13px;color:var(--t2);padding:3px 0 3px 14px;position:relative;}
+.m-item::before{content:'·';position:absolute;left:4px;color:var(--t4);font-size:16px;line-height:1.2;}
+.m-action{font-size:13px;color:var(--t2);padding:4px 0 4px 16px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+.m-action::before{content:'→';position:absolute;left:0;color:var(--grn);font-size:11px;}
+.m-owner{font-size:10px;font-weight:600;border-radius:5px;padding:2px 8px;white-space:nowrap;margin-left:8px;flex-shrink:0;}
+.m-owner.cl{background:var(--surf3);color:var(--t3);border:1px solid var(--bd);}
+.m-owner.ag{background:var(--rose-l);color:var(--rose);border:1px solid #fecdd3;}
+.add-btn{display:flex;align-items:center;gap:7px;background:var(--surf);border:1px dashed var(--bd2);border-radius:var(--r);color:var(--t3);font-size:12px;font-weight:500;font-family:var(--font);padding:10px 16px;width:100%;cursor:pointer;transition:all .2s;margin-top:8px;}
+.add-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-l);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,24,39,.4);z-index:200;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surf);border:1px solid var(--bd);border-radius:var(--rxl);padding:24px 26px;width:min(520px,92vw);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.12);}
+.modal-title{font-size:16px;font-weight:700;color:var(--t1);margin-bottom:18px;}
+.f-row{margin-bottom:12px;}
+.f-label{font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px;display:block;}
+.f-input,.f-textarea,.f-select{width:100%;background:var(--surf);border:1px solid var(--bd);border-radius:var(--r);color:var(--t1);font-family:var(--font);font-size:13px;padding:8px 11px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.f-input:focus,.f-textarea:focus,.f-select:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(225,29,72,.08);}
+.f-textarea{min-height:72px;resize:vertical;}
+.f-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.btn-c{background:transparent;border:1px solid var(--bd2);color:var(--t2);border-radius:var(--r);padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;}
+.btn-s{background:var(--rose);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;}
+.footer{text-align:center;padding:16px;font-size:11px;color:var(--t4);border-top:1px solid var(--bd);margin-top:6px;background:var(--surf);}
+#meetingsScroll::-webkit-scrollbar{width:4px;}
+#meetingsScroll::-webkit-scrollbar-track{background:var(--surf2);border-radius:2px;}
+#meetingsScroll::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-badge">EC REPORT</div>
+      <span class="login-logo-name">EC・定期購入ポータル</span>
+    </div>
+    <div class="login-title">ログイン</div>
+    <div class="login-sub">担当者よりお伝えしたIDとパスワードを入力してください</div>
+    <label class="l-label">クライアントID</label>
+    <input type="text" class="l-input" id="loginId" placeholder="例: beautylab" autocomplete="username">
+    <label class="l-label">パスワード</label>
+    <input type="password" class="l-input" id="loginPw" placeholder="••••••••" autocomplete="current-password">
+    <button class="l-btn" onclick="doLogin()">ログイン</button>
+    <div class="l-err" id="loginErr">IDまたはパスワードが正しくありません</div>
+    <div class="l-demo">
+      <div class="l-demo-title">デモ — クリックでログイン</div>
+      <div class="l-row" onclick="quickLogin('beautylab','pass123')">
+        <div class="l-av" style="background:var(--rose-l);color:var(--rose)">BL</div>
+        <div><div class="l-name">BeautyLab株式会社（定期美容）</div><div class="l-id">beautylab</div></div>
+      </div>
+      <div class="l-row" onclick="quickLogin('freshmart','pass456')">
+        <div class="l-av" style="background:var(--grn-l);color:var(--grn)">FM</div>
+        <div><div class="l-name">FreshMart（食品EC）</div><div class="l-id">freshmart</div></div>
+      </div>
+      <div class="l-row" onclick="quickLogin('admin','admin2025')">
+        <div class="l-av" style="background:#f5f3ff;color:#7c3aed">★</div>
+        <div><div class="l-name">【代理店】親アカウント</div><div class="l-id">admin</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell" style="display:none">
+
+<div class="topbar">
+  <div class="topbar-l">
+    <div class="logo-badge">EC REPORT</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <span class="client-name" id="hdrClient"></span>
+        <span class="type-badge">EC・定期購入型</span>
+      </div>
+      <div class="campaign-name" id="hdrCampaign"></div>
+    </div>
+  </div>
+  <div class="topbar-r">
+    <div class="month-sel">
+      <button class="mbtn" onclick="changeMonth(-1)">‹</button>
+      <div class="mdisp" id="monthDisplay"></div>
+      <button class="mbtn" onclick="changeMonth(+1)">›</button>
+    </div>
+    <div class="live-pip"><div class="live-dot"></div><span class="live-label">LIVE</span></div>
+    <button class="logout-btn" onclick="doLogout()">ログアウト</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="alert-bar" id="alertBar" style="display:none">
+    <div class="a-dot" id="aDot"></div>
+    <span id="alertText"></span>
+  </div>
+
+  <!-- 獲得ステータス -->
+  <div class="sec-title">獲得ステータス</div>
+  <div class="hero-grid">
+
+    <!-- 左: ドーナツ + KPI -->
+    <div class="card" style="margin-bottom:0">
+      <div class="kpi-label" style="margin-bottom:14px">月次 初回購入件数 — オンペース確認</div>
+      <div class="pace-donut-wrap">
+        <div class="donut-svg-wrap">
+          <svg id="donutSvg" viewBox="0 0 120 120" width="120" height="120"></svg>
+          <div class="donut-center">
+            <div class="donut-pct" id="donutPct">—</div>
+            <div class="donut-lbl">達成率</div>
+          </div>
+        </div>
+        <div class="donut-meta">
+          <div class="donut-meta-row">
+            <span class="donut-meta-key">現在</span>
+            <span class="donut-meta-val" id="kActual">—</span>
+          </div>
+          <div class="donut-meta-row">
+            <span class="donut-meta-key">目標</span>
+            <span class="donut-meta-val" id="kTarget">—</span>
+          </div>
+          <div class="donut-meta-row" style="margin-bottom:0">
+            <span class="donut-meta-key">残り</span>
+            <span class="donut-meta-val" id="kRemaining">—</span>
+          </div>
+          <div class="pace-pill" id="kPacePill" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="forecast-strip">
+        <div class="forecast-strip-top">
+          <span class="forecast-strip-label">着地見込み</span>
+          <span class="forecast-strip-val" id="kForecastVal">—</span>
+        </div>
+        <div class="pace-bar-row">
+          <div class="pace-bar-header">
+            <span class="pace-bar-key">実績ペース（現在の達成率）</span>
+            <span class="pace-bar-pct" id="kActualPacePct">—</span>
+          </div>
+          <div class="pace-bar-track"><div class="pace-bar-fill" id="kActualPaceBar" style="width:0%"></div></div>
+        </div>
+        <div class="pace-bar-row">
+          <div class="pace-bar-header">
+            <span class="pace-bar-key">期待ペース（日数比）</span>
+            <span class="pace-bar-pct" id="kExpectedPacePct" style="color:var(--t3)">—</span>
+          </div>
+          <div class="pace-bar-track"><div class="pace-bar-fill" id="kExpectedPaceBar" style="width:0%;background:#94a3b8"></div></div>
+        </div>
+        <div class="forecast-strip-note" id="kForecastNote"></div>
+      </div>
+    </div>
+
+    <!-- 右: チャネル別 -->
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">
+        チャネル別予算配分
+        <span style="font-size:10px;font-weight:500;color:var(--t4);text-transform:none;letter-spacing:0">消化進捗（%）</span>
+      </div>
+      <div id="channelBarList"></div>
+    </div>
+  </div>
+
+  <!-- 獲得推移（切替式） -->
+  <div class="chart-switch-card">
+    <div class="chart-switch-header">
+      <span class="chart-switch-title">獲得推移</span>
+      <div class="chart-tabs">
+        <button class="chart-tab active" onclick="switchChart('recent',this)">直近7日</button>
+        <button class="chart-tab" onclick="switchChart('weekly',this)">週別</button>
+        <button class="chart-tab" onclick="switchChart('monthly',this)">月別比較</button>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="flexChart"></canvas></div>
+  </div>
+
+  <!-- 指標比較 -->
+  <div class="sec-title">指標比較 — クライアント目標値 vs 弊社実績</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px" id="cmpGrid">
+    <!-- JS で描画 -->
+  </div>
+
+  <!-- 議事録 -->
+  <div class="sec-title" style="margin-top:4px">
+    議事録・アクション管理
+    <span class="notif-dot" id="pendingBadge" style="display:none"></span>
+  </div>
+  <div class="tldv-banner" id="tldvBanner" style="display:none">
+    <div class="tldv-l">
+      <div class="tldv-icon">tl</div>
+      <div class="tldv-text">tl;dv から新しいミーティング記録が届いています — 確認・承認してください</div>
+    </div>
+    <button class="tldv-btn">下書きを確認</button>
+  </div>
+  <div style="max-height:520px;overflow-y:auto;padding-right:4px" id="meetingsScroll">
+    <div id="meetingsList"></div>
+  </div>
+  <button class="add-btn" onclick="openAddMeeting()">＋ 議事録を手動追加</button>
+
+</div>
+
+<div class="footer">
+  定期更新中 / 最終更新: <span id="lastUpdated"></span> ／ 担当: 広告代理店チーム
+</div>
+</div>
+
+<!-- ADD MEETING MODAL -->
+<div class="modal-overlay" id="meetingModal">
+  <div class="modal">
+    <div class="modal-title">議事録を追加</div>
+    <div class="f-row"><label class="f-label">日付</label><input type="date" class="f-input" id="mDate"></div>
+    <div class="f-row"><label class="f-label">種別</label>
+      <select class="f-select" id="mType"><option>週次定例</option><option>月次レビュー</option><option>臨時MTG</option></select>
+    </div>
+    <div class="f-row"><label class="f-label">タイトル</label><input type="text" class="f-input" id="mTitle"></div>
+    <div class="f-row"><label class="f-label">報告事項（1行ずつ）</label><textarea class="f-textarea" id="mReport"></textarea></div>
+    <div class="f-row"><label class="f-label">決定事項（1行ずつ）</label><textarea class="f-textarea" id="mDecision"></textarea></div>
+    <div class="f-row"><label class="f-label">アクション（タスク｜担当）</label>
+      <textarea class="f-textarea" id="mActions" placeholder="施策実施｜代理店&#10;確認・承認｜クライアント"></textarea>
+    </div>
+    <div class="f-actions">
+      <button class="btn-c" onclick="closeModal()">キャンセル</button>
+      <button class="btn-s" onclick="addMeeting()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const ACCOUNTS = {
+  'beautylab':{ pw:'pass123', label:'BeautyLab株式会社', campaign:'スキンケア定期購入獲得キャンペーン 2025' },
+  'freshmart': { pw:'pass456', label:'FreshMart',         campaign:'食品定期ボックス新規獲得 2025' },
+  'admin':     { pw:'admin2025', label:'【代理店】親アカウント', campaign:'全クライアント統合ビュー' },
+};
+
+const MO = {
+  'beautylab':{
+    2:{ tAcq:300, tBudget:4500000, aAcq:218, spent:3100000, elapsed:20, days:28, cpa:14220, tCpa:16000,
+        ltv:{ unitPrice:6800, months:8.2, churn:3.1, total:55760, tLtv:60000 }, prevLtv:{ total:52400 },
+        rate2nd:{ v:62, t:65 }, rateSub:{ v:78, t:80 }, rateReturn:{ v:4.2, t:5.0 },
+        funnel:[
+          {stage:'2回目購入', a:135, t:195, cls:'f2', cpoLabel:'2回目獲得単価', cpo:22963},
+          {stage:'定期継続',  a:98,  t:160, cls:'f3', cpoLabel:'定期転換単価', cpo:31633},
+        ],
+        ch:[{n:'Google Ads',s:1600000,b:2200000},{n:'Meta Ads',s:980000,b:1500000},{n:'TikTok Ads',s:520000,b:800000}],
+        daily:[12.1,14.3,11.8,13.6,15.2,12.9,10.4], weekly:[52,58,68,40] },
+    3:{ tAcq:350, tBudget:5000000, aAcq:241, spent:3400000, elapsed:19, days:31, cpa:14108, tCpa:16000,
+        ltv:{ unitPrice:6800, months:8.5, churn:2.8, total:57800, tLtv:60000 }, prevLtv:{ total:55760 },
+        rate2nd:{ v:64, t:65 }, rateSub:{ v:79, t:80 }, rateReturn:{ v:3.9, t:5.0 },
+        funnel:[
+          {stage:'2回目購入', a:154, t:227, cls:'f2', cpoLabel:'2回目獲得単価', cpo:22078},
+          {stage:'定期継続',  a:112, t:175, cls:'f3', cpoLabel:'定期転換単価', cpo:30357},
+        ],
+        ch:[{n:'Google Ads',s:1900000,b:2500000},{n:'Meta Ads',s:1050000,b:1600000},{n:'TikTok Ads',s:450000,b:900000}],
+        daily:[15.2,13.8,16.1,14.4,17.2,13.9,12.2], weekly:[58,65,74,44] },
+    4:{ tAcq:380, tBudget:5500000, aAcq:0, spent:0, elapsed:0, days:30, cpa:0, tCpa:15000,
+        ltv:{ unitPrice:6800, months:0, churn:0, total:0 }, prevLtv:{ total:57800 },
+        rate2nd:{ v:0, t:65 }, rateSub:{ v:0, t:82 }, rateReturn:{ v:0, t:5.0 },
+        funnel:[
+          {stage:'2回目購入', a:0, t:247, cls:'f2', cpoLabel:'2回目獲得単価', cpo:0},
+          {stage:'定期継続',  a:0, t:190, cls:'f3', cpoLabel:'定期転換単価', cpo:0},
+        ],
+        ch:[{n:'Google Ads',s:0,b:2800000},{n:'Meta Ads',s:0,b:1800000},{n:'TikTok Ads',s:0,b:900000}],
+        daily:[0,0,0,0,0,0,0], weekly:[0,0,0,0] },
+  },
+  'freshmart':{
+    3:{ tAcq:200, tBudget:3000000, aAcq:156, spent:2100000, elapsed:19, days:31, cpa:13461, tCpa:16000,
+        ltv:{ unitPrice:4200, months:6.5, churn:4.8, total:27300 }, prevLtv:{ total:25800 },
+        rate2nd:{ v:55, t:60 }, rateSub:{ v:70, t:75 }, rateReturn:{ v:6.1, t:7.0 },
+        funnel:[
+          {stage:'2回目購入', a:86, t:120, cls:'f2', cpoLabel:'2回目獲得単価', cpo:24418},
+          {stage:'定期継続',  a:58, t:90,  cls:'f3', cpoLabel:'定期転換単価', cpo:36206},
+        ],
+        ch:[{n:'Google Ads',s:1200000,b:1800000},{n:'Meta Ads',s:600000,b:800000},{n:'LINE Ads',s:300000,b:400000}],
+        daily:[8.4,9.2,7.8,8.9,10.1,8.6,7.2], weekly:[35,40,46,35] },
+  },
+};
+
+const MEETINGS_DATA = {
+  'beautylab':[
+    {id:'m1',date:'2025/03/19',type:'週次定例',title:'第4週 定例ミーティング',status:'approved',
+     report:['Meta Ads：CPA ¥13,800で目標以内。クリエイティブA案が好調','2回目購入率が64%に改善。先月比+2pt','TikTok AdsのCPAが高止まり。ターゲティングを再設定'],
+     decisions:['TikTok Adsのターゲットを25〜34歳女性に絞り込む','定期継続LP（ステップメール連動）のA/Bテストを開始'],
+     actions:[{t:'TikTokターゲティング変更・入稿',o:'代理店'},{t:'ステップメール内容の最終確認',o:'クライアント'}]},
+    {id:'m2',date:'2025/03/12',type:'週次定例',title:'第3週 定例ミーティング',status:'approved',
+     report:['初回獲得ペースは目標比69%。週末の配信強化を実施','定期継続率が79%に改善（前週比+1.5pt）'],
+     decisions:['週末の予算配分をGoogle 60% / Meta 40%に変更'],
+     actions:[{t:'週末の予算配分変更設定',o:'代理店'},{t:'LPバナー素材の追加支給',o:'クライアント'}]},
+    {id:'m3',date:'2025/03/05',type:'週次定例',title:'第2週 定例ミーティング',status:'approved',
+     report:['LTV予測が¥57,800と先月比で+4%改善','返品率が3.9%と目標内を維持'],
+     decisions:['LTV改善の要因分析をレポートにまとめる'],
+     actions:[{t:'LTV改善要因の分析レポート作成',o:'代理店'},{t:'解約防止施策の提案確認',o:'クライアント'}]},
+    {id:'m4',date:'2025/02/26',type:'月次レビュー',title:'2月 月次レビュー',status:'approved',
+     report:['2月の初回獲得：218件（目標比72.7%）','CPA ¥14,220 — 目標¥16,000以内で着地','2回目購入率62%、定期継続率78%'],
+     decisions:['3月は動画クリエイティブを優先的に制作・配信する','TikTok Adsの予算を月次¥800,000に増枠'],
+     actions:[{t:'動画クリエイティブ制作・入稿（3本）',o:'代理店'},{t:'3月目標値の最終承認',o:'クライアント'}]},
+  ],
+  'freshmart':[
+    {id:'m1',date:'2025/03/18',type:'週次定例',title:'第3週 定例ミーティング',status:'approved',
+     report:['初回購入ペースは目標比78%。食材定期BOXの新クリエイティブが好評','2回目購入率55%、前月比+3pt改善'],
+     decisions:['定期BOX内容の季節変更訴求をLPに反映'],
+     actions:[{t:'季節訴求LP更新',o:'代理店'},{t:'新メニューの画像素材支給',o:'クライアント'}]},
+  ],
+};
+
+// ══ STATE ══
+let acct=null, curMonth=3, curYear=2025;
+let meetings=[], chartFlex=null, chartViewMode='recent';
+
+// ══ AUTH ══
+function doLogin(){
+  const id=document.getElementById('loginId').value.trim().toLowerCase();
+  const pw=document.getElementById('loginPw').value;
+  if(ACCOUNTS[id]&&ACCOUNTS[id].pw===pw) loginOk(id);
+  else document.getElementById('loginErr').style.display='block';
+}
+function quickLogin(id,pw){
+  document.getElementById('loginId').value=id;
+  document.getElementById('loginPw').value=pw;
+  doLogin();
+}
+function loginOk(id){
+  acct=id;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').style.display='block';
+  const a=ACCOUNTS[id];
+  document.getElementById('hdrClient').textContent=a.label;
+  document.getElementById('hdrCampaign').textContent=a.campaign;
+  meetings=JSON.parse(JSON.stringify(MEETINGS_DATA[id]||MEETINGS_DATA['beautylab']));
+  document.getElementById('lastUpdated').textContent=
+    new Date().toLocaleString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  renderAll();
+}
+function doLogout(){
+  acct=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginErr').style.display='none';
+  ['loginId','loginPw'].forEach(id=>document.getElementById(id).value='');
+}
+document.getElementById('loginPw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+
+// ══ MONTH ══
+function changeMonth(d){
+  curMonth+=d;
+  if(curMonth<1){curMonth=12;curYear--;} if(curMonth>12){curMonth=1;curYear++;}
+  renderAll();
+}
+function fmtMo(){ return `${curYear}年${curMonth}月`; }
+
+// ══ RENDER ══
+function renderAll(){
+  document.getElementById('monthDisplay').textContent=fmtMo();
+  const d=getData();
+  renderHero(d);
+  renderChannels(d);
+  renderFlexChart(d);
+  renderCmp(d);
+  renderMeetings();
+}
+function getData(){
+  const src=MO[acct]||MO['beautylab'];
+  return src[curMonth]||{
+    tAcq:0,tBudget:0,aAcq:0,spent:0,elapsed:0,days:30,cpa:0,tCpa:0,
+    ltv:{unitPrice:0,months:0,churn:0,total:0},prevLtv:{total:0},
+    rate2nd:{v:0,t:0},rateSub:{v:0,t:0},rateReturn:{v:0,t:0},
+    funnel:[],ch:[],daily:[0,0,0,0,0,0,0],weekly:[0,0,0,0]
+  };
+}
+function fmtY(n){ return `¥${Math.round(n).toLocaleString('ja-JP')}`; }
+function fmtN(n){ return Math.round(n).toLocaleString('ja-JP'); }
+
+// ── HERO (ドーナツ) ──
+function renderHero(d){
+  const pct=d.tAcq>0?Math.round(d.aAcq/d.tAcq*100):0;
+  const rem=Math.max(d.tAcq-d.aAcq,0);
+  const color=pct>=100?'#059669':pct>=70?'#e11d48':pct>=50?'#d97706':'#dc2626';
+
+  const r=46,cx=60,cy=60,circ=2*Math.PI*r;
+  const svg=document.getElementById('donutSvg');
+  svg.innerHTML=`
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f3f6" stroke-width="10"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="10"
+      stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${(circ*(1-Math.min(pct,100)/100)).toFixed(2)}"
+      stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})"/>`;
+  set('donutPct',`${pct}%`);
+  document.getElementById('donutPct').style.color=color;
+
+  setVal('kActual',`${fmtN(d.aAcq)} 件`,color);
+  setVal('kTarget',`${fmtN(d.tAcq)} 件`,'var(--t1)');
+  setVal('kRemaining',rem>0?`${fmtN(rem)} 件`:'達成済み',rem===0?'#059669':'var(--t1)');
+
+  const ePct=d.days>0?Math.round(d.elapsed/d.days*100):0;
+  const pp=document.getElementById('kPacePill');
+  if(!d.elapsed){pp.textContent='集計中';pp.className='pace-pill p-slow';}
+  else if(pct>=100){pp.textContent='✓ 目標達成';pp.className='pace-pill p-on';}
+  else if(pct>=ePct+5){pp.textContent='✓ オンペース以上';pp.className='pace-pill p-on';}
+  else if(pct>=ePct-10){pp.textContent='→ ほぼオンペース';pp.className='pace-pill p-fast';}
+  else{pp.textContent='▲ ペース遅れ';pp.className='pace-pill p-over';}
+
+  // Forecast
+  if(d.elapsed>0&&d.aAcq>0){
+    const fc=Math.round(d.aAcq/d.elapsed*d.days);
+    const fPct=d.tAcq>0?Math.round(fc/d.tAcq*100):0;
+    const fc2=fPct>=100?'#059669':fPct>=80?'#d97706':'#dc2626';
+    set('kForecastVal',`${fmtN(fc)} 件`);
+    document.getElementById('kForecastVal').style.color=fc2;
+    document.getElementById('kActualPaceBar').style.width=Math.min(pct,100)+'%';
+    document.getElementById('kActualPaceBar').style.background=color;
+    set('kActualPacePct',`${pct}%`);
+    document.getElementById('kActualPacePct').style.color=color;
+    document.getElementById('kExpectedPaceBar').style.width=Math.min(ePct,100)+'%';
+    set('kExpectedPacePct',`${ePct}%`);
+    const diff=pct-ePct;
+    const dl=diff>0?`+${diff}pt 先行`:diff===0?`同等`:`${diff}pt 遅れ`;
+    const note=fPct>=100?`目標達成見込み（目標比 ${fPct}%）— 期待比 ${dl}`:
+               fPct>=80?`目標まであと ${fmtN(d.tAcq-fc)} 件（目標比 ${fPct}%）— 期待比 ${dl}`:
+               `ペース改善が必要（目標比 ${fPct}%）— 期待比 ${dl}`;
+    set('kForecastNote',note);
+    document.getElementById('kForecastNote').style.color=fc2;
+  } else {
+    set('kForecastVal',d.elapsed===0?'月初のため集計中':'―');
+    ['kActualPaceBar','kExpectedPaceBar'].forEach(id=>document.getElementById(id).style.width='0%');
+    set('kActualPacePct','—'); set('kExpectedPacePct','—'); set('kForecastNote','');
+  }
+
+  // Alert
+  const ab=document.getElementById('alertBar');
+  if(!d.elapsed){ab.style.display='none';return;}
+  ab.style.display='flex';
+  const ePct2=d.days>0?Math.round(d.elapsed/d.days*100):0;
+  let msg='',bg='#ecfdf5',bc='#a7f3d0',dc='#059669';
+  if(pct<50&&ePct2>50){msg=`初回獲得ペースが目標比 ${pct}% です。施策の見直しを検討してください。`;bg='#fef2f2';bc='#fecaca';dc='#dc2626';}
+  else if(pct<80&&ePct2>50){msg=`初回獲得は目標比 ${pct}% — 後半の強化が必要です。`;bg='#fffbeb';bc='#fde68a';dc='#d97706';}
+  else msg=`${fmtMo()}の獲得状況は順調です（${pct}% 達成）。`;
+  set('alertText',msg); ab.style.background=bg; ab.style.borderColor=bc;
+  document.getElementById('aDot').style.background=dc;
+}
+
+// ── CHANNELS (比率のみ表示、金額は非表示) ──
+function renderChannels(d){
+  const list=document.getElementById('channelBarList'); list.innerHTML='';
+  const colors=['#e11d48','#0284c7','#d97706','#059669','#7c3aed'];
+  // 配分比率（予算割合）を計算
+  const totalBudget=(d.ch||[]).reduce((s,c)=>s+c.b,0);
+  (d.ch||[]).forEach((c,i)=>{
+    const p=c.b>0?Math.min(Math.round(c.s/c.b*100),100):0;
+    const alloc=totalBudget>0?Math.round(c.b/totalBudget*100):0;
+    const over=c.s>c.b;
+    const col=over?'#dc2626':colors[i%colors.length];
+    list.innerHTML+=`
+      <div class="ch-bar-row">
+        <div class="ch-bar-name">${c.n}</div>
+        <div class="ch-bar-track-wrap">
+          <div class="ch-bar-track"><div class="ch-bar-fill" style="width:${p}%;background:${col}"></div></div>
+          <div class="ch-bar-numbers">
+            <span style="font-size:11px;color:var(--t3);font-weight:500">配分 ${alloc}%</span>
+            <span style="font-size:11px;color:var(--t3)">消化進捗 <span style="font-weight:700;color:${over?'#dc2626':col}">${p}%</span></span>
+          </div>
+        </div>
+      </div>`;
+  });
+  if(!d.ch||!d.ch.length) list.innerHTML='<div style="font-size:12px;color:var(--t4);padding:8px 0">データなし</div>';
+}
+
+// ── COMPARISON SECTION (3指標: LTV / 2回目購入率 / 返品・解約率) ──
+function renderCmp(d){
+  const grid=document.getElementById('cmpGrid'); grid.innerHTML='';
+  const ltv=d.ltv||{};
+  const r2=d.rate2nd||{};
+  const rr=d.rateReturn||{};
+
+  // 実績LTV計算
+  const actualLtv=ltv.unitPrice>0&&ltv.months>0 ? ltv.unitPrice*ltv.months : 0;
+  const targetLtv=ltv.tLtv||0;
+  const prevLtv=(d.prevLtv||{}).total||0;
+  const ltvDiff=prevLtv>0?Math.round((actualLtv-prevLtv)/prevLtv*100):0;
+
+  const metrics=[
+    {
+      title:'LTV（顧客生涯価値）',
+      isYen:true, invertGood:false,
+      target:targetLtv,
+      actual:actualLtv,
+      targetLabel:'クライアント目標',
+      actualLabel:'弊社実績（広告経由）',
+      actualSub: actualLtv>0 ? `${fmtY(ltv.unitPrice)} × ${ltv.months}ヶ月 / 先月比 ${ltvDiff>=0?'+':''}${ltvDiff}%` : '集計中',
+      targetSub: targetLtv>0 ? `クライアント設定値` : '未設定',
+      color:'#e11d48',
+    },
+    {
+      title:'2回目購入率',
+      isYen:false, invertGood:false,
+      target:r2.t||0,
+      actual:r2.v||0,
+      targetLabel:'クライアント目標',
+      actualLabel:'弊社実績',
+      actualSub:'広告経由顧客のみ',
+      targetSub:'クライアント設定値',
+      color:'#d97706',
+    },
+    {
+      title:'返品・解約率',
+      isYen:false, invertGood:true,
+      target:rr.t||0,
+      actual:rr.v||0,
+      targetLabel:'目標上限値',
+      actualLabel:'弊社実績',
+      actualSub:'低いほど良い',
+      targetSub:'クライアント設定値',
+      color:'#059669',
+    },
+  ];
+
+  metrics.forEach(m=>{
+    if(!m.target&&!m.actual){ grid.innerHTML+='<div class="cmp-card"><div class="cmp-title">'+m.title+'</div><div style="font-size:12px;color:var(--t4);padding:8px 0">データ未入力</div></div>'; return; }
+
+    // バー幅: 大きい方を100%基準にする
+    const maxVal=Math.max(m.target,m.actual,1);
+    const tBarW=Math.round(m.target/maxVal*100);
+    const aBarW=Math.round(m.actual/maxVal*100);
+    const fmt=v=>m.isYen?fmtY(v):`${v}%`;
+
+    // 差分計算
+    let diffText='', diffColor='var(--t1)';
+    if(m.target>0&&m.actual>0){
+      if(!m.invertGood){
+        const d2=m.isYen?Math.round(m.actual-m.target):+(m.actual-m.target).toFixed(1);
+        const pct=Math.round(m.actual/m.target*100);
+        diffText=pct>=100?`目標達成 (+${m.isYen?fmtY(d2):d2+'pt'})`:
+                  pct>=85?`目標の ${pct}% (${m.isYen?fmtY(d2):d2+'pt'})`:
+                  `未達 (${m.isYen?fmtY(d2):d2+'pt'})`;
+        diffColor=pct>=100?'#059669':pct>=85?'#d97706':'#dc2626';
+      } else {
+        const d2=+(m.actual-m.target).toFixed(1);
+        diffText=m.actual<=m.target?`目標以内 (${d2}pt)`:
+                  m.actual<=m.target*1.3?`やや高め (+${d2}pt)`:
+                  `要改善 (+${d2}pt)`;
+        diffColor=m.actual<=m.target?'#059669':m.actual<=m.target*1.3?'#d97706':'#dc2626';
+      }
+    }
+
+    grid.innerHTML+=`
+      <div class="cmp-card">
+        <div class="cmp-title">${m.title}</div>
+        <div class="cmp-legend">
+          <div class="cmp-legend-item">
+            <div class="cmp-legend-dot" style="background:#d1d5db"></div>${m.targetLabel}
+          </div>
+          <div class="cmp-legend-item">
+            <div class="cmp-legend-dot" style="background:${m.color}"></div>${m.actualLabel}
+          </div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-row-label">${m.targetLabel}</div>
+          <div class="cmp-bar-wrap">
+            <div class="cmp-bar-track">
+              <div class="cmp-bar-fill" style="width:${tBarW}%;background:#d1d5db"></div>
+            </div>
+            <div class="cmp-bar-sub">${m.targetSub}</div>
+          </div>
+          <div class="cmp-bar-val" style="color:var(--t2)">${m.target?fmt(m.target):'―'}</div>
+        </div>
+        <div class="cmp-row">
+          <div class="cmp-row-label">${m.actualLabel}</div>
+          <div class="cmp-bar-wrap">
+            <div class="cmp-bar-track">
+              <div class="cmp-bar-fill" style="width:${aBarW}%;background:${m.color}"></div>
+            </div>
+            <div class="cmp-bar-sub">${m.actualSub}</div>
+          </div>
+          <div class="cmp-bar-val" style="color:${m.color}">${m.actual?fmt(m.actual):'集計中'}</div>
+        </div>
+        ${diffText?`
+        <div class="cmp-divider"></div>
+        <div class="cmp-verdict">
+          <span class="cmp-verdict-label">目標との差</span>
+          <span class="cmp-verdict-val" style="color:${diffColor}">${diffText}</span>
+        </div>`:''}
+      </div>`;
+  });
+}
+
+// ── FLEX CHART ──
+function switchChart(mode,btn){
+  chartViewMode=mode;
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderFlexChart(getData());
+}
+function renderFlexChart(d){
+  if(chartFlex) chartFlex.destroy();
+  const ctx=document.getElementById('flexChart').getContext('2d');
+  const col='rgba(225,29,72,.75)';
+  const prev=getPrev();
+  if(chartViewMode==='recent'){
+    const labs=[];
+    const today=new Date();
+    for(let i=6;i>=0;i--){const dt=new Date(today);dt.setDate(today.getDate()-i);labs.push(`${dt.getMonth()+1}/${dt.getDate()}`);}
+    chartFlex=new Chart(ctx,{type:'bar',
+      data:{labels:labs,datasets:[{label:'日次消化額（万円）',data:d.daily,backgroundColor:col,borderRadius:5,borderSkipped:false}]},
+      options:cOpts({callbacks:{label:c=>` ¥${(c.raw*10000).toLocaleString('ja-JP')}`}})});
+  } else if(chartViewMode==='weekly'){
+    const tW=d.tAcq>0?d.tAcq/4:0;
+    const wL=['1週目','2週目','3週目','4週目'].slice(0,d.weekly.length);
+    chartFlex=new Chart(ctx,{type:'bar',
+      data:{labels:wL,datasets:[
+        {label:'実績',data:d.weekly,backgroundColor:col,borderRadius:5,borderSkipped:false,order:2},
+        {label:'週次目標',data:wL.map(()=>tW),type:'line',borderColor:'#d97706',borderDash:[4,4],borderWidth:2,pointRadius:0,fill:false,order:1},
+      ]},options:cOpts({callbacks:{label:c=>` ${c.raw} 件`}})});
+  } else {
+    const tW=d.tAcq>0?d.tAcq/4:0;
+    const wL=['1週目','2週目','3週目','4週目'];
+    const cur=d.weekly.concat(Array(4).fill(null)).slice(0,4);
+    const pv=prev?(prev.weekly.concat(Array(4).fill(null)).slice(0,4)):Array(4).fill(0);
+    const prevLabel=`${curYear}年${curMonth===1?12:curMonth-1}月`;
+    chartFlex=new Chart(ctx,{type:'bar',
+      data:{labels:wL,datasets:[
+        {label:fmtMo(),data:cur,backgroundColor:col,borderRadius:5,borderSkipped:false},
+        {label:prevLabel,data:pv,backgroundColor:'rgba(156,163,175,.5)',borderRadius:5,borderSkipped:false},
+        {label:'週次目標',data:wL.map(()=>tW),type:'line',borderColor:'#d97706',borderDash:[4,4],borderWidth:2,pointRadius:0,fill:false},
+      ]},options:cOpts({callbacks:{label:c=>` ${c.raw??'―'} 件`}})});
+  }
+}
+function cOpts(extra){
+  return{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#6b7280',font:{size:11},boxWidth:10,boxHeight:2}},
+      tooltip:{backgroundColor:'#1f2937',borderColor:'#374151',borderWidth:1,titleColor:'#9ca3af',bodyColor:'#f9fafb',...(extra||{})}},
+    scales:{
+      x:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:11}}},
+      y:{grid:{color:'#f3f4f6',lineWidth:1},ticks:{color:'#9ca3af',font:{size:11}},suggestedMin:0},
+    }
+  };
+}
+function getPrev(){
+  const src=MO[acct]||MO['beautylab'];
+  return src[curMonth===1?12:curMonth-1]||null;
+}
+
+// ── MEETINGS ──
+function renderMeetings(){
+  const list=document.getElementById('meetingsList'); list.innerHTML='';
+  const badge=document.getElementById('pendingBadge');
+  badge.style.display='none';
+  meetings.forEach(m=>list.appendChild(mkCard(m)));
+}
+function mkCard(m){
+  const div=document.createElement('div'); div.className='mc';
+  const rH=(m.report||[]).map(r=>`<div class="m-item">${r}</div>`).join('');
+  const dH=(m.decisions||[]).map(r=>`<div class="m-item">${r}</div>`).join('');
+  const aH=(m.actions||[]).map(a=>`
+    <div class="m-action"><span>${a.t}</span>
+    ${a.o?`<span class="m-owner ${a.o==='代理店'?'ag':'cl'}">${a.o}</span>`:''}</div>`).join('');
+  div.innerHTML=`
+    <div class="mc-header">
+      <div class="mc-meta">
+        <span class="m-date">${m.date}</span>
+        <span class="m-type">${m.type}</span>
+        <span class="m-status s-approved">公開済み</span>
+      </div>
+    </div>
+    <div class="m-title">${m.title}</div>
+    ${rH?`<div class="m-sec">報告事項</div>${rH}`:''}
+    ${dH?`<div class="m-sec">決定事項</div>${dH}`:''}
+    ${aH?`<div class="m-sec">次回アクション</div>${aH}`:''}`;
+  return div;
+}
+
+function openAddMeeting(){
+  document.getElementById('mDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('meetingModal').classList.add('open');
+}
+function addMeeting(){
+  const date=document.getElementById('mDate').value.replace(/-/g,'/');
+  const type=document.getElementById('mType').value;
+  const title=document.getElementById('mTitle').value;
+  if(!title||!date){alert('日付とタイトルは必須です');return;}
+  const report=document.getElementById('mReport').value.split('\n').filter(l=>l.trim());
+  const decisions=document.getElementById('mDecision').value.split('\n').filter(l=>l.trim());
+  const actions=document.getElementById('mActions').value.split('\n').filter(l=>l.trim())
+    .map(l=>{const[t,o='']= l.split('｜');return{t:t.trim(),o:o.trim()};});
+  meetings.unshift({id:`m-${Date.now()}`,date,type,title,status:'approved',report,decisions,actions});
+  closeModal(); renderMeetings();
+  ['mTitle','mReport','mDecision','mActions'].forEach(id=>document.getElementById(id).value='');
+}
+function closeModal(){ document.getElementById('meetingModal').classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+
+function set(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
+function setVal(id,v,color){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.textContent=v;
+  if(color) el.style.color=color;
+}
+</script>
+</body>
+</html>
